@@ -51,7 +51,7 @@ def save_to_csv(data, filename):
             writer = csv.writer(file)
             writer.writerow(["Judul", "Rating"])
             for item in data:
-                writer.writerow([item['title'], item['rating']]])
+                writer.writerow([item['title'], item['rating']])
         print(f"Data berhasil disimpan di {filename}")
     except Exception as e:
         print(f"Gagal menyimpan data: {e}")
