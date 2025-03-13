@@ -25,7 +25,7 @@ def scrape_page(url):
             rating_tag = anime.find('span', class_=lambda c: c and 'score-label' in c.split())
             rating = rating_tag.get_text(strip=True) if rating_tag else 'N/A'
 
-            anime_list.append({'title': title, 'rating'})
+            anime_list.append({'title': title, 'rating': rating})
 
         return anime_list
     except requests.exceptions.RequestException as e:
