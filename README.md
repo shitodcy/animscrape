@@ -1,5 +1,8 @@
 # 🎡 Anime Scraper
 
+## 📹 Video Demo
+[![Demo Anime Scraper](https://youtu.be/pwggTSu1P9k?si=Cs_XfA2y1L3pJvuB)]
+
 Anime Scraper adalah script Python untuk mengekstrak data anime dari **MyAnimeList** berdasarkan genre dan menyimpannya dalam file **CSV**. 
 
 ## 🚀 Instalasi & Penggunaan
