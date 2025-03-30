@@ -20,7 +20,7 @@ python animscrape.py
 ```
 
 ### 3️⃣ **Masukkan Input**
-> 📝 **Masukkan jumlah anime** yang ingin diambil (contoh: `5000`).  
+> 📝 **Masukkan jumlah anime** yang ingin diambil (contoh: `4999` untuk mendapatkan hasil data 5000 baris).  
 > 📝 **Masukkan nama file CSV** untuk menyimpan hasil (contoh: `my_anime_list.csv`).  
 
 ## 📊 Fitur
