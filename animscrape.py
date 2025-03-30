@@ -7,7 +7,7 @@ import re
 def display_ascii_art():
     ascii_art = """
       ___________________________
-     < Karak Scraping Tools! >
+     < Animscrape Tools! >
       ---------------------------
                        ⢀⣀⠤⠿⢤⢖⡆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
                      ⡔⢩⠂⠀⠒⠗⠈⠀⠉⠢⠄⣀⠠⠤⠄⠒⢖⡒⢒⠂⠤⢄⠀⠀⠀⠀
