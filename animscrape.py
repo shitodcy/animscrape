@@ -46,7 +46,8 @@ def scrape_page(url, current_genre):
             release_tag = anime.find('div', class_='info')
             release_date = release_tag.find('span', class_='item').get_text(strip=True).split(', ')[-1] if release_tag and release_tag.find('span', class_='item') else 'N/A'
 
-            rating_tag = anime.find('div', class_='scormem-item score score-label score-5')
+            # Modified to find any score from 1-10
+            rating_tag = anime.find('div', class_=lambda x: x and x.startswith('scormem-item score score-label score-'))
             rating = rating_tag.get_text(strip=True) if rating_tag else 'N/A'
 
             studio_tag = anime.find('div', class_='property')
