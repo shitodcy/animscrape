@@ -46,7 +46,6 @@ def scrape_page(url, current_genre):
             release_tag = anime.find('div', class_='info')
             release_date = release_tag.find('span', class_='item').get_text(strip=True).split(', ')[-1] if release_tag and release_tag.find('span', class_='item') else 'N/A'
 
-            # Modified to find any score from 1-10
             rating_tag = anime.find('div', class_=lambda x: x and x.startswith('scormem-item score score-label score-'))
             rating = rating_tag.get_text(strip=True) if rating_tag else 'N/A'
 
@@ -73,11 +72,10 @@ def get_genres():
     response.raise_for_status()
     
     soup = BeautifulSoup(response.text, 'html.parser')
-    genre_links = soup.select('a.genre-name-link')  # Select by specific class
+    genre_links = soup.select('a.genre-name-link')
     
     genres = {}
     for link in genre_links:
-        # Clean genre name by removing the count in parentheses
         genre_name = re.sub(r'\s*\(\d+[,\.\d]*\)', '', link.text.strip())
         genres[genre_name] = link['href']
     
@@ -91,15 +89,12 @@ def select_genres(all_genres):
     
     print("\nPilih genre yang ingin di-scrape:")
     print("1. Masukkan nomor genre (contoh: 1,3,5)")
-    print("2. Ketik 'all' untuk memilih semua genre")
-    print("3. Ketik 'cancel' untuk membatalkan")
+    print("2. Ketik 'cancel' untuk membatalkan")
     
     while True:
         choice = input("\nMasukkan pilihan Anda: ").strip().lower()
         
-        if choice == 'all':
-            return sorted_genres
-        elif choice == 'cancel':
+        if choice == 'cancel':
             return None
         else:
             try:
@@ -152,7 +147,7 @@ def scrape_selected_genres(selected_genres, limit):
         genre_data, collected_count = scrape_genre_pages(genre_url, genre_name, limit, collected_count)
         all_anime.extend(genre_data)
 
-        if len(all_anime) % 100 == 0:  # Backup every 100 records
+        if len(all_anime) % 100 == 0:
             save_to_csv(all_anime, "backup_scraped_data.csv")
             print(f"💾 Backup sementara disimpan! Total terkumpul: {len(all_anime)} data")
 
@@ -162,7 +157,6 @@ def scrape_selected_genres(selected_genres, limit):
 
 def save_to_csv(data, filename):
     try:
-        # Calculate genre statistics
         genres_count = {}
         for anime in data:
             genre = anime['genre']
@@ -189,8 +183,7 @@ def save_to_csv(data, filename):
 
 if __name__ == "__main__":
     try:
-        
-        limit = int(input("Masukkan jumlah anime yang ingin di-scrape (misalnya: 100): ").strip())
+        limit = int(input("Masukkan jumlah anime yang ingin di-scrape (misalnya: 199 untuk 200 baris): ").strip())
         
         print("\n🔄 Mengambil daftar genre dari MyAnimeList...")
         all_genres = get_genres()
