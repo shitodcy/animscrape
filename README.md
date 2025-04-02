@@ -10,7 +10,9 @@ Anime Scraper adalah script Python untuk mengekstrak data anime dari **MyAnimeLi
 ### 1️⃣ **Instalasi Dependensi**
 Pastikan kamu sudah menginstal **Python 3.7+**, lalu jalankan perintah berikut:
 ```bash
-pip install requests beautifulsoup4
+git clone https://github.com/shitodcy/animscrape
+cd animscrape
+pip install -r requirements.txt
 ```
 
 ### 2️⃣ **Jalankan Script**
