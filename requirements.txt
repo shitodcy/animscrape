@@ -1,6 +1,2 @@
 requests==2.31.0
 beautifulsoup4==4.12.2
-csv
-time==1.0
-re==2.2.1
-concurrent-log-handler==0.9.24
