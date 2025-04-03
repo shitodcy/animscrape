@@ -18,7 +18,7 @@ def display_ascii_art():
 ⠀⠀⠀⠀⠀⠀⠀                     ⠑⢤⢁⠀⠆⠀⠀⠀⠀⠀⢀⢰⠀⠀⠀⡀⢄⡜⠀
 ⠀⠀⠀⠀⠀⠀⠀⠀                     ⠘⡦⠄⡷⠢⠤⠤⠤⠤⢬⢈⡇⢠⣈⣰⠎⠀⠀
 ⠀⠀⠀⠀⠀⠀⠀⠀                     ⠀⣃⢸⡇⠀⠀⠀⠀⠀⠈⢪⢀⣺⡅
-                              ⠶⡿⠤⠚⠁⠀⠀⠀⢀⣠⡤⢺⣥⠟⠀⠀
+                            ⠶⡿⠤⠚⠁⠀⠀⠀⢀⣠⡤⢺⣥⠟⠀⠀
     """
     print(ascii_art)
 
@@ -104,58 +104,82 @@ def get_genres():
     return genres
 
 def select_genres(genres):
-    print("\n🎭 Pilih Kategori Genre:")
+    print("\n🎭 Pilih Kategori Genre (bisa multiple dengan koma):")
     genre_categories = list(genres.keys())
     for i, category in enumerate(genre_categories, start=1):
         print(f"{i}. {category}")
     
     print("\nPilih kategori genre yang ingin di-scrape:")
-    print("1. Masukkan nomor kategori")
-    print("2. Ketik 'cancel' untuk membatalkan")
+    print("1. Masukkan nomor kategori (contoh: 1,2,3 untuk memilih beberapa)")
+    print("2. Ketik 'all' untuk memilih semua kategori")
+    print("3. Ketik 'cancel' untuk membatalkan")
     
     while True:
         choice = input("\nMasukkan pilihan Anda: ").strip().lower()
         
         if choice == 'cancel':
             return None
-        try:
-            category_idx = int(choice) - 1
-            if 0 <= category_idx < len(genre_categories):
-                selected_category = genre_categories[category_idx]
+        elif choice == 'all':
+            selected_categories = genre_categories
+            break
+        else:
+            try:
+                selected_indices = [int(idx.strip()) for idx in choice.split(',')]
+                selected_categories = []
+                for idx in selected_indices:
+                    if 1 <= idx <= len(genre_categories):
+                        selected_categories.append(genre_categories[idx-1])
+                    else:
+                        print(f"⚠️ Peringatan: Nomor {idx} tidak valid dan akan diabaikan")
+                if selected_categories:
+                    break
+                print("❌ Tidak ada kategori yang valid dipilih. Silakan coba lagi.")
+            except ValueError:
+                print("❌ Input tidak valid. Silakan masukkan nomor kategori yang dipisahkan koma (contoh: 1,2,3)")
+    
+    # Collect all genres from selected categories
+    all_selected_genres = []
+    for category in selected_categories:
+        print(f"\n🎭 Daftar Genre {category} yang Tersedia:")
+        genre_items = genres[category]
+        sorted_genres = sorted(genre_items.items())
+        for i, (genre_name, _) in enumerate(sorted_genres, start=1):
+            print(f"{i}. {genre_name}")
+        
+        print("\nPilih genre yang ingin di-scrape (bisa multiple dengan koma):")
+        print("1. Masukkan nomor genre (contoh: 1,3,5)")
+        print("2. Ketik 'all' untuk memilih semua genre dalam kategori ini")
+        print("3. Ketik 'skip' untuk melewati kategori ini")
+        
+        while True:
+            choice = input("\nMasukkan pilihan Anda: ").strip().lower()
+            
+            if choice == 'skip':
                 break
-            print("❌ Nomor kategori tidak valid. Silakan coba lagi.")
-        except ValueError:
-            print("❌ Input tidak valid. Silakan masukkan nomor kategori.")
+            elif choice == 'all':
+                for genre_name, genre_url in sorted_genres:
+                    all_selected_genres.append((genre_name, genre_url))
+                break
+            else:
+                try:
+                    selected_indices = [int(idx.strip()) for idx in choice.split(',')]
+                    for idx in selected_indices:
+                        if 1 <= idx <= len(sorted_genres):
+                            genre_name, genre_url = sorted_genres[idx-1]
+                            all_selected_genres.append((genre_name, genre_url))
+                        else:
+                            print(f"⚠️ Peringatan: Nomor {idx} tidak valid dan akan diabaikan")
+                    if any(1 <= idx <= len(sorted_genres) for idx in selected_indices):
+                        break
+                    print("❌ Tidak ada genre yang valid dipilih. Silakan coba lagi.")
+                except ValueError:
+                    print("❌ Input tidak valid. Silakan masukkan nomor genre yang dipisahkan koma (contoh: 1,3,5)")
     
-    print(f"\n🎭 Daftar Genre {selected_category} yang Tersedia:")
-    genre_items = genres[selected_category]
-    sorted_genres = sorted(genre_items.items())
-    for i, (genre_name, _) in enumerate(sorted_genres, start=1):
-        print(f"{i}. {genre_name}")
+    if not all_selected_genres:
+        print("⚠️ Tidak ada genre yang dipilih untuk di-scrape.")
+        return None
     
-    print("\nPilih genre yang ingin di-scrape:")
-    print("1. Masukkan nomor genre (contoh: 1,3,5)")
-    print("2. Ketik 'cancel' untuk membatalkan")
-    
-    while True:
-        choice = input("\nMasukkan pilihan Anda: ").strip().lower()
-        
-        if choice == 'cancel':
-            return None
-        try:
-            selected_indices = [int(idx.strip()) for idx in choice.split(',')]
-            selected_genres = []
-            for idx in selected_indices:
-                if 1 <= idx <= len(sorted_genres):
-                    genre_name, genre_url = sorted_genres[idx-1]
-                    selected_genres.append((genre_name, genre_url))
-                else:
-                    print(f"⚠️ Peringatan: Nomor {idx} tidak valid dan akan diabaikan")
-            if selected_genres:
-                return selected_genres
-            print("❌ Tidak ada genre yang valid dipilih. Silakan coba lagi.")
-        except ValueError:
-            print("❌ Input tidak valid. Silakan masukkan nomor genre yang dipisahkan koma (contoh: 1,3,5)")
+    return all_selected_genres
 
 def scrape_genre(genre_name, genre_url, limit):
     all_anime = []
