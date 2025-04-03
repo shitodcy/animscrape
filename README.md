@@ -48,4 +48,4 @@ Pull request sangat diterima! Pastikan kode tetap rapi dan sesuai dengan standar
 Proyek ini dirilis di bawah lisensi **MIT**.
 
 ---
-📚 Dibuat dengan ❤ oleh **[shitodcy]**
+📚 Dibuat dengan ❤ oleh **[shitodcy & team]**
