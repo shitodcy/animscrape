@@ -3,6 +3,7 @@ import csv
 from bs4 import BeautifulSoup
 import time
 import re
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 def display_ascii_art():
     ascii_art = """
@@ -28,10 +29,9 @@ session.headers.update({
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
 })
 
-def scrape_page(url, current_genre):
+def scrape_page(url, genre_name):
     try:
-        print(f"🔍 Scraping URL: {url}")  
-        response = session.get(url)
+        response = session.get(url, timeout=10)
         response.raise_for_status()
 
         soup = BeautifulSoup(response.text, 'html.parser')
@@ -57,33 +57,79 @@ def scrape_page(url, current_genre):
                 'rating': rating,
                 'release_date': release_date,
                 'studio': studio,
-                'genre': current_genre
+                'genre': genre_name
             })
 
-        print(f"✅ Berhasil scrape {len(anime_list)} anime dari {url}") 
         return anime_list
-    except requests.exceptions.RequestException as e:
-        print(f"❌ Terjadi kesalahan: {e}")
+    except Exception as e:
+        print(f"❌ Error scraping {url}: {str(e)}")
         return []
 
 def get_genres():
-    url = "https://myanimelist.net/anime.php"
-    response = session.get(url)
-    response.raise_for_status()
-    
-    soup = BeautifulSoup(response.text, 'html.parser')
-    genre_links = soup.select('a.genre-name-link')
-    
-    genres = {}
-    for link in genre_links:
-        genre_name = re.sub(r'\s*\(\d+[,\.\d]*\)', '', link.text.strip())
-        genres[genre_name] = link['href']
-    
+    # Define all genres with proper organization
+    genres = {
+        "Main Genres": {
+            "Action": "/anime/genre/1/Action",
+            "Adventure": "/anime/genre/2/Adventure",
+            "Avant Garde": "/anime/genre/5/Avant_Garde",
+            "Award Winning": "/anime/genre/46/Award_Winning",
+            "Boys Love": "/anime/genre/28/Boys_Love",
+            "Comedy": "/anime/genre/4/Comedy",
+            "Drama": "/anime/genre/8/Drama",
+            "Fantasy": "/anime/genre/10/Fantasy",
+            "Girls Love": "/anime/genre/26/Girls_Love",
+            "Gourmet": "/anime/genre/47/Gourmet",
+            "Horror": "/anime/genre/14/Horror",
+            "Mystery": "/anime/genre/7/Mystery",
+            "Romance": "/anime/genre/22/Romance",
+            "Sci-Fi": "/anime/genre/24/Sci-Fi",
+            "Slice of Life": "/anime/genre/36/Slice_of_Life",
+            "Sports": "/anime/genre/30/Sports",
+            "Supernatural": "/anime/genre/37/Supernatural",
+            "Suspense": "/anime/genre/41/Suspense"
+        },
+        "Explicit Genres": {
+            "Ecchi": "/anime/genre/9/Ecchi",
+            "Erotica": "/anime/genre/49/Erotica",
+            "Hentai": "/anime/genre/12/Hentai"
+        },
+        "Demographics": {
+            "Josei": "/anime/genre/43/Josei",
+            "Kids": "/anime/genre/15/Kids",
+            "Seinen": "/anime/genre/42/Seinen",
+            "Shoujo": "/anime/genre/25/Shoujo",
+            "Shounen": "/anime/genre/27/Shounen"
+        }
+    }
     return genres
 
-def select_genres(all_genres):
-    print("\n🎭 Daftar Genre yang Tersedia:")
-    sorted_genres = sorted(all_genres.items())
+def select_genres(genres):
+    print("\n🎭 Pilih Kategori Genre:")
+    genre_categories = list(genres.keys())
+    for i, category in enumerate(genre_categories, start=1):
+        print(f"{i}. {category}")
+    
+    print("\nPilih kategori genre yang ingin di-scrape:")
+    print("1. Masukkan nomor kategori")
+    print("2. Ketik 'cancel' untuk membatalkan")
+    
+    while True:
+        choice = input("\nMasukkan pilihan Anda: ").strip().lower()
+        
+        if choice == 'cancel':
+            return None
+        try:
+            category_idx = int(choice) - 1
+            if 0 <= category_idx < len(genre_categories):
+                selected_category = genre_categories[category_idx]
+                break
+            print("❌ Nomor kategori tidak valid. Silakan coba lagi.")
+        except ValueError:
+            print("❌ Input tidak valid. Silakan masukkan nomor kategori.")
+    
+    print(f"\n🎭 Daftar Genre {selected_category} yang Tersedia:")
+    genre_items = genres[selected_category]
+    sorted_genres = sorted(genre_items.items())
     for i, (genre_name, _) in enumerate(sorted_genres, start=1):
         print(f"{i}. {genre_name}")
     
@@ -96,63 +142,68 @@ def select_genres(all_genres):
         
         if choice == 'cancel':
             return None
-        else:
-            try:
-                selected_indices = [int(idx.strip()) for idx in choice.split(',')]
-                selected_genres = []
-                for idx in selected_indices:
-                    if 1 <= idx <= len(sorted_genres):
-                        selected_genres.append(sorted_genres[idx-1])
-                    else:
-                        print(f"⚠️ Peringatan: Nomor {idx} tidak valid dan akan diabaikan")
-                if selected_genres:
-                    return selected_genres
+        try:
+            selected_indices = [int(idx.strip()) for idx in choice.split(',')]
+            selected_genres = []
+            for idx in selected_indices:
+                if 1 <= idx <= len(sorted_genres):
+                    genre_name, genre_url = sorted_genres[idx-1]
+                    selected_genres.append((genre_name, genre_url))
                 else:
-                    print("❌ Tidak ada genre yang valid dipilih. Silakan coba lagi.")
-            except ValueError:
-                print("❌ Input tidak valid. Silakan masukkan nomor genre yang dipisahkan koma (contoh: 1,3,5)")
+                    print(f"⚠️ Peringatan: Nomor {idx} tidak valid dan akan diabaikan")
+            if selected_genres:
+                return selected_genres
+            print("❌ Tidak ada genre yang valid dipilih. Silakan coba lagi.")
+        except ValueError:
+            print("❌ Input tidak valid. Silakan masukkan nomor genre yang dipisahkan koma (contoh: 1,3,5)")
 
-def scrape_genre_pages(genre_url, genre_name, limit, collected_count):
-    page = 1
+def scrape_genre(genre_name, genre_url, limit):
     all_anime = []
-
-    while collected_count < limit:
+    page = 1
+    
+    while len(all_anime) < limit:
         full_url = f"https://myanimelist.net{genre_url}?page={page}"
-        print(f"📄 Scraping {genre_name} - Halaman {page}")
         page_data = scrape_page(full_url, genre_name)
-
+        
         if not page_data:
-            break  
-
-        all_anime.extend(page_data)
-        collected_count += len(page_data)
-        
-        if collected_count >= limit:
             break
-        
+            
+        all_anime.extend(page_data)
         page += 1
-        time.sleep(2)  
-
-    return all_anime[:limit], min(collected_count, limit)
+        
+        if len(all_anime) >= limit:
+            break
+            
+    return all_anime[:limit]
 
 def scrape_selected_genres(selected_genres, limit):
     all_anime = []
-    collected_count = 0
+    start_time = time.time()
     
-    for genre_name, genre_url in selected_genres:
-        if collected_count >= limit:
-            break
+    limit_per_genre = max(1, limit // len(selected_genres))
+    
+    with ThreadPoolExecutor(max_workers=5) as executor:
+        futures = []
+        for genre_name, genre_url in selected_genres:
+            futures.append(executor.submit(scrape_genre, genre_name, genre_url, limit_per_genre))
         
-        print(f"\n🎭 Memulai scraping genre: {genre_name}")
-        genre_data, collected_count = scrape_genre_pages(genre_url, genre_name, limit, collected_count)
-        all_anime.extend(genre_data)
-
-        if len(all_anime) % 100 == 0:
-            save_to_csv(all_anime, "backup_scraped_data.csv")
-            print(f"💾 Backup sementara disimpan! Total terkumpul: {len(all_anime)} data")
-
-        time.sleep(3)  
+        for future in as_completed(futures):
+            try:
+                genre_data = future.result()
+                all_anime.extend(genre_data)
+                print(f"✅ Selesai scraping {len(genre_data)} anime dari genre {genre_data[0]['genre'] if genre_data else 'unknown'}")
+            except Exception as e:
+                print(f"❌ Error saat scraping: {str(e)}")
     
+    if len(all_anime) < limit:
+        remaining = limit - len(all_anime)
+        if selected_genres:
+            genre_name, genre_url = selected_genres[0]
+            extra_data = scrape_genre(genre_name, genre_url, remaining)
+            all_anime.extend(extra_data)
+            print(f"➕ Menambahkan {len(extra_data)} anime dari {genre_name} untuk mencapai limit")
+    
+    print(f"\n⏱️ Waktu scraping total: {time.time() - start_time:.2f} detik")
     return all_anime[:limit]
 
 def save_to_csv(data, filename):
@@ -185,16 +236,16 @@ if __name__ == "__main__":
     try:
         limit = int(input("Masukkan jumlah anime yang ingin di-scrape (misalnya: 199 untuk 200 baris): ").strip())
         
-        print("\n🔄 Mengambil daftar genre dari MyAnimeList...")
-        all_genres = get_genres()
-        selected_genres = select_genres(all_genres)
+        print("\n🔄 Memuat daftar genre...")
+        genres = get_genres()
+        selected_genres = select_genres(genres)
         
-        if selected_genres is None:
+        if not selected_genres:
             print("❌ Scraping dibatalkan.")
         else:
             print("\n📌 Genre yang dipilih:")
-            for genre, _ in selected_genres:
-                print(f"- {genre}")
+            for genre_name, _ in selected_genres:
+                print(f"- {genre_name}")
             
             confirm = input("\nApakah Anda yakin ingin melanjutkan? (y/n): ").lower()
             if confirm == 'y':
