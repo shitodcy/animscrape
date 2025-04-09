@@ -1,4 +1,4 @@
-# 🎡 Anime Scraper
+![image](https://github.com/user-attachments/assets/2f6f2d14-e68d-49ab-abbf-d6f775eabfc6)# 🎡 Anime Scraper
 
 ## 📹 Video Demo
 [[Demo Anime Scraper]](https://youtu.be/pwggTSu1P9k?si=Cs_XfA2y1L3pJvuB)
@@ -47,5 +47,11 @@ Pull request sangat diterima! Pastikan kode tetap rapi dan sesuai dengan standar
 ## 🌐 Lisensi
 Proyek ini dirilis di bawah lisensi **MIT**.
 
----
-📚 Dibuat dengan ❤ oleh **[shitodcy & team]**
+## 👥 Kontributor
+
+Terima kasih kepada semua yang telah berkontribusi pada proyek ini:
+
+- [@shitodcy](https://github.com/shitodcy)
+- [@JihanPaperwork](https://github.com/JihanPaperwork)
+- [@iruru21](https://github.com/iruru21)
+
