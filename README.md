@@ -1,5 +1,3 @@
-![image](https://github.com/user-attachments/assets/2f6f2d14-e68d-49ab-abbf-d6f775eabfc6)# 🎡 Anime Scraper
-
 ## 📹 Video Demo
 [[Demo Anime Scraper]](https://youtu.be/pwggTSu1P9k?si=Cs_XfA2y1L3pJvuB)
 
